@@ -10,7 +10,7 @@ import glob
 st.set_page_config(
     page_title="GIS Image Classification",
     page_icon="🌍",
-    layout="centered"
+    layout="wide"
 )
 
 # Custom CSS
@@ -27,67 +27,82 @@ st.markdown("""
         padding: 10px;
         border-radius: 10px;
     }
+    [data-testid="column"]:nth-of-type(2) {
+        height: 90vh;
+        overflow-y: auto;
+    }
+    [data-testid="column"]:nth-of-type(1) img {
+        max-height: 400px;
+        width: auto;
+        object-fit: contain;
+    }
     </style>
 """, unsafe_allow_html=True)
 
-# Title
-st.title("🌍 GIS Image Classification")
-st.markdown("### Upload satellite/aerial images to classify land cover")
 
-# Load model with caching
-@st.cache_resource
-def get_model():
-    return load_model()
 
-model = get_model()
 
-# File uploader
-uploaded_file = st.file_uploader(
-    "Choose an image...", 
-    type=['jpg', 'jpeg', 'png'],
-    help="Upload satellite or aerial imagery"
-)
+col_left, col_right = st.columns([0.65, 0.35])
 
-if uploaded_file is not None:
-    # Display image
-    image = Image.open(uploaded_file)
-    st.image(image, caption='Uploaded Image', use_container_width =True)
-    
-    # Create temporary file
-    temp_path = "temp_image.jpg"
-    image.save(temp_path)
-    
-    # Predict button
-    if st.button('🔍 Classify Image'):
-        with st.spinner('Analyzing image...'):
-            try:
-                # Predict
-                class_index, confidence = predict_image(model, temp_path)
-                
-                # Class labels
-                class_labels = ['Forests', 'Urban Areas', 'Water Bodies']
-                prediction = class_labels[class_index]
-                
-                # Display results
-                st.success("Classification Complete!")
-                
-                col1, col2 = st.columns(2)
-                with col1:
-                    st.metric(label="Prediction", value=prediction)
-                with col2:
-                    st.metric(label="Confidence", value=f"{confidence*100:.2f}%")
-                
-                # Progress bar for confidence
-                st.progress(float(confidence))
-                
-            except Exception as e:
-                st.error(f"Error: {str(e)}")
-            finally:
-                # Clean up
-                if os.path.exists(temp_path):
-                    os.remove(temp_path)
+with col_left:
+        # Title
+    st.title("🌍 GIS Image Classification")
+    st.markdown("### Upload satellite/aerial images to classify land cover")
 
-col_left, col_right = st.columns(2)
+    # Load model with caching
+    @st.cache_resource
+    def get_model():
+        return load_model()
+
+    model = get_model()
+
+
+    # File uploader
+    uploaded_file = st.file_uploader(
+        "Choose an image...", 
+        type=['jpg', 'jpeg', 'png'],
+        help="Upload satellite or aerial imagery"
+    )
+    if uploaded_file is not None:
+        # Display image
+        image = Image.open(uploaded_file)
+        st.image(image, caption='Uploaded Image', use_container_width=True)
+        
+        # Create temporary file
+        temp_path = "temp_image.jpg"
+        image.save(temp_path)
+        
+        # Predict button
+        if st.button('🔍 Classify Image'):
+            with st.spinner('Analyzing image...'):
+                try:
+                    # Predict
+                    class_index, confidence = predict_image(model, temp_path)
+                    
+                    # Class labels
+                    class_labels = ['Forests', 'Urban Areas', 'Water Bodies']
+                    prediction = class_labels[class_index]
+                    
+                    # Display results
+                    st.success("Classification Complete!")
+                    
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.metric(label="Prediction", value=prediction)
+                    with col2:
+                        st.metric(label="Confidence", value=f"{confidence*100:.2f}%")
+                    
+                    # Progress bar for confidence
+                    st.progress(float(confidence))
+                    
+                except Exception as e:
+                    st.error(f"Error: {str(e)}")
+                finally:
+                    # Clean up
+                    if os.path.exists(temp_path):
+                        os.remove(temp_path)
+
+
 # RIGHT COLUMN - Example Images
 with col_right:
     st.markdown("### 📸 Example Images")
@@ -111,7 +126,7 @@ with col_right:
                 filename = os.path.basename(img_path)
                 
                 # Display image with caption
-                st.image(img, caption=filename, use_container_width =True)
+                st.image(img, caption=filename, use_column_width=True)
                 
                 # Button to use this example
                 if st.button(f"Test {filename}", key=img_path):
@@ -125,7 +140,7 @@ with col_right:
                             # Show results in left column
                             with col_left:
                                 st.success(f"Results for {filename}")
-                                st.image(img, caption=filename, use_container_width =True)
+                                st.image(img, caption=filename, use_column_width=True)
                                 
                                 col1, col2 = st.columns(2)
                                 with col1:
