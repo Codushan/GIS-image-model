@@ -126,7 +126,7 @@ with col_right:
                 filename = os.path.basename(img_path)
                 
                 # Display image with caption
-                st.image(img, caption=filename, use_column_width=True)
+                st.image(img, caption=filename, use_container_width=True)
                 
                 # Button to use this example
                 if st.button(f"Test {filename}", key=img_path):
@@ -140,7 +140,7 @@ with col_right:
                             # Show results in left column
                             with col_left:
                                 st.success(f"Results for {filename}")
-                                st.image(img, caption=filename, use_column_width=True)
+                                st.image(img, caption=filename, use_container_width=True)
                                 
                                 col1, col2 = st.columns(2)
                                 with col1:
