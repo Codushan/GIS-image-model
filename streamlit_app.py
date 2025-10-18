@@ -50,7 +50,7 @@ uploaded_file = st.file_uploader(
 if uploaded_file is not None:
     # Display image
     image = Image.open(uploaded_file)
-    st.image(image, caption='Uploaded Image', use_column_width=True)
+    st.image(image, caption='Uploaded Image', use_container_width =True)
     
     # Create temporary file
     temp_path = "temp_image.jpg"
